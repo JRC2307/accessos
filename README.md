@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AccessOS
 
-## Getting Started
+Digital guest list and access control platform for club/party operations.
 
-First, run the development server:
+## Current implementation
+
+- Bilingual UI (Spanish/English toggle).
+- Light/Dark theme toggle with persistence.
+- Foundation dashboard for zones, tiers, roles, and allocations.
+- Supabase auth scaffold (email OTP) and event CRUD scaffold.
+- Initial Postgres schema + RLS + allocation cap sync trigger.
+
+## Run locally
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App runs at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Supabase setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create a Supabase project.
+2. Copy `.env.example` values into `.env.local` with real keys.
+3. Run SQL migration from `supabase/migrations/0001_foundations.sql` in Supabase SQL Editor.
+4. Create one organization row and membership for your auth user so RLS allows event CRUD.
 
-## Learn More
+## Database foundations
 
-To learn more about Next.js, take a look at the following resources:
+- Migration file: `supabase/migrations/0001_foundations.sql`
+- Core tables (`organizations`, `events`, `zones`, `access_tiers`, `guests`, `credentials`, `scan_logs`, `notifications`)
+- Role mappings (`memberships`, `event_roles`, `stakeholder_groups`)
+- Allocation controls (`allocations` + `sync_allocation_caps` trigger)
+- RLS helper functions and access policies by org/event role
+- Auth bridge trigger (`auth.users` -> `public.users`)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Next implementation targets
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Event setup CRUD for `zones`, `access_tiers`, `tier_zone_map`, `allocations`.
+2. Guest CRUD with allocation-cap validation in UI.
+3. QR credential issuance and scan logging flow.
