@@ -52,11 +52,13 @@ export async function listEvents(
   }
 
   const rows =
-    (data as Array<
-      EventRecord & {
-        venues: { name: string } | null;
-      }
-    > | null) ?? [];
+    (data as
+      | Array<
+          EventRecord & {
+            venues: Array<{ name: string }> | null;
+          }
+        >
+      | null) ?? [];
 
   return {
     data: rows.map((row) => ({
@@ -66,7 +68,7 @@ export async function listEvents(
       ends_at: row.ends_at,
       capacity: row.capacity,
       created_at: row.created_at,
-      venue_name: row.venues?.name ?? null,
+      venue_name: row.venues?.[0]?.name ?? null,
     })),
     error: null,
   };
@@ -111,7 +113,7 @@ export async function getEventById(
     starts_at: string;
     ends_at: string;
     capacity: number | null;
-    venues: { name: string } | null;
+    venues: Array<{ name: string }> | null;
   };
 
   return {
@@ -122,7 +124,7 @@ export async function getEventById(
       starts_at: row.starts_at,
       ends_at: row.ends_at,
       capacity: row.capacity,
-      venue_name: row.venues?.name ?? null,
+      venue_name: row.venues?.[0]?.name ?? null,
     },
     error: null,
   };
