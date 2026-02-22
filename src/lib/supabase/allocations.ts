@@ -22,7 +22,9 @@ export async function listAllocations(
   }
 
   const rows =
-    (data as Array<AllocationRecord & { stakeholder_groups: { event_id: string } }> | null) ?? [];
+    (data as
+      | Array<AllocationRecord & { stakeholder_groups: Array<{ event_id: string }> }>
+      | null) ?? [];
 
   return {
     data: rows.map((row) => ({
