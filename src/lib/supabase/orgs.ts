@@ -20,11 +20,11 @@ export async function listUserOrgs(
   }
 
   const rows =
-    (data as Array<{ org_id: string; organizations: OrgRecord | null }> | null) ?? [];
+    (data as Array<{ org_id: string; organizations: OrgRecord[] | null }> | null) ?? [];
 
   return {
     data: rows
-      .map((row) => row.organizations)
+      .map((row) => row.organizations?.[0] ?? null)
       .filter((org): org is OrgRecord => Boolean(org)),
     error: null,
   };
