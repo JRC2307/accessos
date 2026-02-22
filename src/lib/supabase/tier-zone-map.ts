@@ -18,7 +18,10 @@ export async function listTierZoneMap(
     return { data: [], error: error.message };
   }
 
-  const rows = (data as Array<TierZoneMapRecord & { access_tiers: { event_id: string } }> | null) ?? [];
+  const rows =
+    (data as
+      | Array<TierZoneMapRecord & { access_tiers: Array<{ event_id: string }> }>
+      | null) ?? [];
   return {
     data: rows.map((row) => ({
       access_tier_id: row.access_tier_id,
