@@ -7,10 +7,22 @@ export interface EventRecord {
   ends_at: string;
   capacity: number | null;
   created_at: string;
+  venue_name: string | null;
+}
+
+export interface EventDetail {
+  id: string;
+  org_id: string;
+  name: string;
+  starts_at: string;
+  ends_at: string;
+  capacity: number | null;
+  venue_name: string | null;
 }
 
 export interface EventDraft {
   orgId: string;
+  venueId: string | null;
   name: string;
   startsAt: string;
   endsAt: string;
@@ -31,7 +43,7 @@ export async function listEvents(
 ): Promise<{ data: EventRecord[]; error: string | null }> {
   const { data, error } = await supabase
     .from("events")
-    .select("id,name,starts_at,ends_at,capacity,created_at")
+    .select("id,name,starts_at,ends_at,capacity,created_at,venues(name)")
     .order("starts_at", { ascending: false })
     .limit(30);
 
@@ -39,7 +51,25 @@ export async function listEvents(
     return { data: [], error: error.message };
   }
 
-  return { data: (data as EventRecord[]) ?? [], error: null };
+  const rows =
+    (data as Array<
+      EventRecord & {
+        venues: { name: string } | null;
+      }
+    > | null) ?? [];
+
+  return {
+    data: rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      starts_at: row.starts_at,
+      ends_at: row.ends_at,
+      capacity: row.capacity,
+      created_at: row.created_at,
+      venue_name: row.venues?.name ?? null,
+    })),
+    error: null,
+  };
 }
 
 export async function createEvent(
@@ -48,6 +78,7 @@ export async function createEvent(
 ): Promise<{ error: string | null }> {
   const payload = {
     org_id: draft.orgId,
+    venue_id: draft.venueId,
     name: draft.name,
     starts_at: toIsoDate(draft.startsAt),
     ends_at: toIsoDate(draft.endsAt),
@@ -57,4 +88,42 @@ export async function createEvent(
   const { error } = await supabase.from("events").insert(payload);
 
   return { error: error?.message ?? null };
+}
+
+export async function getEventById(
+  supabase: SupabaseClient,
+  id: string,
+): Promise<{ data: EventDetail | null; error: string | null }> {
+  const { data, error } = await supabase
+    .from("events")
+    .select("id,org_id,name,starts_at,ends_at,capacity,venues(name)")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+
+  const row = data as {
+    id: string;
+    org_id: string;
+    name: string;
+    starts_at: string;
+    ends_at: string;
+    capacity: number | null;
+    venues: { name: string } | null;
+  };
+
+  return {
+    data: {
+      id: row.id,
+      org_id: row.org_id,
+      name: row.name,
+      starts_at: row.starts_at,
+      ends_at: row.ends_at,
+      capacity: row.capacity,
+      venue_name: row.venues?.name ?? null,
+    },
+    error: null,
+  };
 }

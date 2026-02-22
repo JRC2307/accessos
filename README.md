@@ -13,9 +13,9 @@ Digital guest list and access control platform for club/party operations.
 ## Run locally
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env.local
-npm run dev
+pnpm dev
 ```
 
 App runs at [http://localhost:3000](http://localhost:3000).
