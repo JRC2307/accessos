@@ -30,7 +30,7 @@ export interface CreateGuestInput {
 }
 
 type GuestRow = Omit<GuestRecord, "added_by_display_name"> & {
-  added_by?: { display_name: string | null } | null;
+  added_by?: Array<{ display_name: string | null }> | null;
 };
 
 export async function listGuests(
@@ -64,7 +64,7 @@ export async function listGuests(
   return {
     data: rows.map(({ added_by, ...rest }) => ({
       ...rest,
-      added_by_display_name: added_by?.display_name ?? null,
+      added_by_display_name: added_by?.[0]?.display_name ?? null,
     })),
     error: null,
   };
